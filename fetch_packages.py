@@ -6,6 +6,7 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 from time import sleep
 
 _RETRIES = 5
@@ -160,9 +161,12 @@ def ProcessPackage(pkg):
     ApplyPatches(pkg)
 
 def FindMd5sum(anyfile):
-    cmd = ['md5sum']
 #.de.byte.breaker
-    cmd.append('-q')
+    if sys.platform == 'freebsd10':
+        cmd = ['md5']
+        cmd.append('-q')
+    else:
+        cmd = ['md5sum']
     cmd.append(anyfile)
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
     stdout, stderr = proc.communicate()
