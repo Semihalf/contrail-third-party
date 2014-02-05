@@ -32,7 +32,8 @@ def getTarDestination(tgzfile, compress_flag):
     (output, _) = cmd.communicate()
     (first, _) = output.split('\n', 1)
     fields = first.split()
-    return fields[5]
+#.de.byte.breaker
+    return fields[-1]
 
 def getZipDestination(tgzfile):
     cmd = subprocess.Popen(['unzip', '-t', tgzfile],
@@ -160,6 +161,8 @@ def ProcessPackage(pkg):
 
 def FindMd5sum(anyfile):
     cmd = ['md5sum']
+#.de.byte.breaker
+    cmd.append('-q')
     cmd.append(anyfile)
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
     stdout, stderr = proc.communicate()
