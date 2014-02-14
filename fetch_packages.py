@@ -161,8 +161,8 @@ def ProcessPackage(pkg):
     ApplyPatches(pkg)
 
 def FindMd5sum(anyfile):
-#.de.byte.breaker
-    if sys.platform == 'freebsd10':
+    # MD5 command is different on FreeBSD systems
+    if sys.platform.startswith('freebsd'):
         cmd = ['md5']
         cmd.append('-q')
     else:
