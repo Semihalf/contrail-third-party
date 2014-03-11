@@ -163,4 +163,10 @@
       <patch strip="1">cpp-driver-libcql_patch1.diff</patch>
     </patches>
   </package>
+  <package>
+    <name>ICU - International Components for Unicode</name>
+    <url>http://download.icu-project.org/files/icu4c/52.1/icu4c-52_1-src.tgz</url>
+    <format>tgz</format>
+    <md5>9e96ed4c1d99c0d14ac03c140f9f346c</md5>
+  </package>
 </packages>
