@@ -9,6 +9,7 @@
       <patch strip="2">boost_1_48_patch2.diff</patch>
       <patch strip="2">boost_1_48_patch3.diff</patch>
       <patch strip="0">boost_time_utc.patch</patch>
+      <patch strip="1">boost_1_48_patch4.diff</patch>
     </patches>
   </package>
   <package>
@@ -114,6 +115,7 @@
     <md5>8afa09423807df4287994231c24a8518</md5>
     <patches>
       <patch strip="2">ifmap-python-patch1.diff</patch>
+      <patch strip="2">ifmap-python-patch2.diff</patch>
     </patches>
   </package>
   <package>
@@ -142,6 +144,9 @@
     <url>http://rapidjson.googlecode.com/files/rapidjson-0.11.zip</url>
     <format>zip</format>
     <md5>96a4b1b57ece8bc6a807ceb14ccaaf94</md5>
+    <patches>
+      <patch strip="2">rapidjson_patch1.diff</patch>
+    </patches>
   </package>
   <package>
     <name>ISC Bind</name>
@@ -153,15 +158,12 @@
     </patches>
   </package>
   <package>
-    <name>DataStax C++ Driver for Apache Cassandra</name>
-    <url>https://github.com/datastax/cpp-driver/archive/release_0_2_0.tar.gz</url>
-    <local-filename>cpp-driver.zip</local-filename>
+    <name>NodeJS</name>
+    <url>http://nodejs.org/dist/v0.8.15/node-v0.8.15.tar.gz</url>
+    <local-filename>node-v0.8.15.tar.gz</local-filename>
     <format>tgz</format>
-    <md5>e0bf6b31b19afbc72e92f0e3de655e0d</md5>
-    <rename>cpp-driver</rename>
-    <patches>
-      <patch strip="1">cpp-driver-libcql_patch1.diff</patch>
-    </patches>
+    <md5>6cb31180b07475db103e694f65e8bb9b</md5>
+    <rename>node-v0.8.15</rename>
   </package>
   <package>
     <name>ICU - International Components for Unicode</name>
