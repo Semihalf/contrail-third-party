@@ -3,6 +3,7 @@
 # Copyright (c) 2013 Juniper Networks, Inc. All rights reserved.
 #
 import os
+import errno
 import re
 import shutil
 import subprocess
@@ -13,6 +14,8 @@ _RETRIES = 5
 _OPT_VERBOSE = None
 _OPT_DRY_RUN = None
 _PACKAGE_CACHE='/tmp/cache/' + os.environ['USER'] + '/third_party'
+_NODE_MODULES='./node_modules'
+_TMP_NODE_MODULES=_PACKAGE_CACHE + '/' + _NODE_MODULES
 
 from lxml import objectify
 
@@ -28,12 +31,11 @@ def getFilename(pkg, url):
     return filename
 
 def getTarDestination(tgzfile, compress_flag):
-    cmd = subprocess.Popen(['tar', compress_flag + 'tvf', tgzfile],
+    cmd = subprocess.Popen(['tar', compress_flag + 'tf', tgzfile],
                            stdout=subprocess.PIPE)
     (output, _) = cmd.communicate()
     (first, _) = output.split('\n', 1)
     fields = first.split()
-#.de.byte.breaker
     return fields[-1]
 
 def getZipDestination(tgzfile):
@@ -47,6 +49,12 @@ def getZipDestination(tgzfile):
         if m:
             return m.group(1)
     return None
+
+def getFileDestination(file):
+    start = file.rfind('/')
+    if start < 0:
+        return None
+    return file[start+1:]
 
 def ApplyPatches(pkg):
     stree = pkg.find('patches')
@@ -78,7 +86,7 @@ def DownloadPackage(url, pkg, md5):
 
     retry_count = 0
     while True:
-        subprocess.call(['wget', '--no-check-certificate', '-O', pkg, url])
+	subprocess.call(['wget', '--no-check-certificate', '-O', pkg, url, '--timeout=10'])
         md5sum = FindMd5sum(pkg)
         if _OPT_VERBOSE:
             print "Calculated md5sum: %s" % md5sum
@@ -135,6 +143,10 @@ def ProcessPackage(pkg):
             dest = getTarDestination(ccfile, 'j')
         elif pkg.format == 'zip':
             dest = getZipDestination(ccfile)
+        elif pkg.format == 'npm':
+            dest = getTarDestination(ccfile, 'z')
+        elif pkg.format == 'file':
+            dest = getFileDestination(ccfile)
 
     #
     # clean directory before unpacking and applying patches
@@ -163,13 +175,41 @@ def ProcessPackage(pkg):
         cmd = ['tar', 'jxvf', ccfile]
     elif pkg.format == 'zip':
         cmd = ['unzip', '-o', ccfile]
+    elif pkg.format == 'npm':
+        cmd = ['npm', 'install', ccfile, '--prefix', _PACKAGE_CACHE]
+    elif pkg.format == 'file':
+        cmd = ['cp', '-af', ccfile, dest]
     else:
         print 'Unexpected format: %s' % (pkg.format)
         return
+
     if not _OPT_DRY_RUN:
         cd = None
         if unpackdir:
             cd = str(unpackdir)
+        if pkg.format == 'npm':
+            try:
+                os.makedirs(_NODE_MODULES)
+                os.makedirs(_TMP_NODE_MODULES)
+            except OSError as exc:
+                if exc.errno == errno.EEXIST:
+                    pass
+                else:
+                    print 'mkdirs of ' + _NODE_MODULES + ' ' + _TMP_NODE_MODULES + ' failed.. Exiting..'
+                    return
+
+            npmCmd = ['cp', '-af', _TMP_NODE_MODULES + '/' + pkg['name'],
+                      './node_modules/']
+            if os.path.exists(_TMP_NODE_MODULES + '/' + pkg['name']):
+                cmd = npmCmd
+            else:
+		try:
+                   p = subprocess.Popen(cmd, cwd = cd)
+                   p.wait()
+                   cmd = npmCmd
+		except OSError:
+		   print ' '.join(cmd) + ' could not be executed, bailing out!'
+		   return
         p = subprocess.Popen(cmd, cwd = cd)
         p.wait()
 
